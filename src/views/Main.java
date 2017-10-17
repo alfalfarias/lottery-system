@@ -59,7 +59,7 @@ public class Main extends JFrame {
 	 */
 	public Main() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/main/change.png")));
-		setTitle("Loter\u00EDa - Animalitos");
+		setTitle("Sistema de Sorteos de Loter\u00EDa");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 630, 450);
 		

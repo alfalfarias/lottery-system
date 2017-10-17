@@ -41,9 +41,11 @@ public class Apuesta extends JPanel {
 	private JSpinner montoSpinner;
 	private JPanel panel;
 	private JPanel panel_1;
+	@SuppressWarnings("rawtypes")
 	private JComboBox idComboBox;
 	private JButton btnNewButton_1;
 	private JLabel lblAnimalito;
+	@SuppressWarnings("rawtypes")
 	private JComboBox comboBox;
 	private JLabel lblGanancia;
 	private JTextField gananciaTextField;
@@ -52,6 +54,7 @@ public class Apuesta extends JPanel {
 	/**
 	 * Create the panel.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Apuesta() {
 		
 		panel = new JPanel();

@@ -192,9 +192,11 @@ public class Configuracion extends JDialog {
 			 * 
 			 */
 			private static final long serialVersionUID = -5861811070260572442L;
+			@SuppressWarnings("rawtypes")
 			Class[] columnTypes = new Class[] {
 				String.class, String.class
 			};
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];
 			}

@@ -7,7 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.Toolkit;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -18,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ImageIcon;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -74,7 +77,7 @@ public class Premiacion extends JDialog {
 					scrollPane.setViewportView(table);
 				}
 			}
-			JComboBox comboBox = new JComboBox();
+			JComboBox<Object> comboBox = new JComboBox<Object>();
 			JLabel lblSeleccionarTicket = new JLabel("Seleccionar Ticket:");
 			JButton btnNewButton = new JButton("Cambiar estado");
 			btnNewButton.setIcon(new ImageIcon(Premiacion.class.getResource("/Premiacion/refresh-page-option.png")));
