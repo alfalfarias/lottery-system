@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Loteria {
 	int apuesta;
 	double ganancia;
+	double relacion;
 	ArrayList<Ficha> fichas = new ArrayList<Ficha>();
 	public Loteria(int apuesta, double ganancia, ArrayList<Ficha> fichas) {
 		super();
@@ -29,5 +30,11 @@ public class Loteria {
 	}
 	public void setFichas(ArrayList<Ficha> fichas) {
 		this.fichas = fichas;
+	}
+	public double getRelacion() {
+		return relacion;
+	}
+	public void setRelacion(double relacion) {
+		this.relacion = relacion;
 	}
 }

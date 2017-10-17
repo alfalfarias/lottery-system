@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.GroupLayout;
@@ -14,9 +15,18 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import models.Data;
+
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JLabel;
@@ -44,6 +54,8 @@ public class Configuracion extends JDialog {
 	private JTextField nombreTextField;
 	private JTable table;
 	private JSpinner numeroSpinner;
+	
+	Data data = new Data();
 
 	/**
 	 * Launch the application.
@@ -100,9 +112,82 @@ public class Configuracion extends JDialog {
 		
 		JButton btnNewButton = new JButton("Exportar");
 		btnNewButton.setIcon(new ImageIcon(Configuracion.class.getResource("/configuracion/export.png")));
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fileChooser = new JFileChooser();
+				//Filtro
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("DATA", "data");
+				fileChooser.setFileFilter(filter);
+				//Mostrar solo archivos y directorios
+				fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				int seleccion = fileChooser.showOpenDialog(contentPanel);
+				if (seleccion == JFileChooser.APPROVE_OPTION) {
+				   if (fileChooser.getCurrentDirectory().isDirectory()){
+					   try {
+						   FileOutputStream fileOut = new FileOutputStream(fileChooser.getSelectedFile()+".data");
+						   ObjectOutputStream out = new ObjectOutputStream(fileOut);
+						   out.writeObject(data);
+						   out.close();
+						   fileOut.close();
+						   JOptionPane.showMessageDialog(
+								   contentPanel,
+								   "Data guardada con éxito.");
+					      }
+					   catch(IOException i) {
+						   JOptionPane.showMessageDialog(
+								   contentPanel,
+								   "Error: "+i.getMessage()+".");
+						   i.printStackTrace();
+					   }
+				   }
+				   else{
+					   JOptionPane.showMessageDialog(
+							   contentPanel,
+							   "El directorio no existe.");
+				   }
+				}
+			}
+		});
 		
 		JButton btnImportar = new JButton("Importar");
 		btnImportar.setIcon(new ImageIcon(Configuracion.class.getResource("/configuracion/import.png")));
+		btnImportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fileChooser = new JFileChooser();
+				//Filtro
+				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("DATA", "data");
+				fileChooser.setFileFilter(filter);
+				int seleccion = fileChooser.showSaveDialog(contentPanel);
+				if (seleccion == JFileChooser.APPROVE_OPTION)
+				{
+				   if (fileChooser.getSelectedFile().exists()){
+					   try {
+						   FileInputStream fileIn = new FileInputStream(fileChooser.getSelectedFile());
+						   ObjectInputStream in = new ObjectInputStream(fileIn);
+						   data = (Data) in.readObject();
+						   in.close();
+						   fileIn.close();
+					   }catch(IOException i) {
+						   i.printStackTrace();
+						   return;
+					   }catch(ClassNotFoundException c) {
+
+						   JOptionPane.showMessageDialog(
+								   contentPanel,
+								   "Error: "+c.getMessage());
+						   return;
+					   }
+				   }
+				   else{
+					   JOptionPane.showMessageDialog(
+							   contentPanel,
+							   "El archivo no existe.");
+				   }
+				}
+			}
+		});
+		
 		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
 		gl_panel_2.setHorizontalGroup(
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
@@ -263,8 +348,8 @@ public class Configuracion extends JDialog {
 							defaultTableModel.setValueAt(numeroSpinner.getValue().toString(), table.getRowCount()-1, 0);
 							defaultTableModel.setValueAt(nombreTextField.getText().toString(), table.getRowCount()-1, 1);
 							table.setModel(defaultTableModel);
-							numeroSpinner.setValue("");
 							nombreTextField.setText("");
+							//numeroSpinner.setValue("1");
 						}
 					}
 				}
