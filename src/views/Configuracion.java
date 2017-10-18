@@ -17,16 +17,16 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import models.Data;
+import models.Ficha;
+import models.Loteria;
+import controllers.DataController;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JLabel;
@@ -56,6 +56,8 @@ public class Configuracion extends JDialog {
 	private JSpinner numeroSpinner;
 	
 	Data data = new Data();
+	private JSpinner spinner;
+	private JSpinner spinner_1;
 
 	/**
 	 * Launch the application.
@@ -93,21 +95,21 @@ public class Configuracion extends JDialog {
 				.addGroup(gl_contentPanel.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_contentPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
+						.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 						.addGroup(gl_contentPanel.createSequentialGroup()
-							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
+							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 210, Short.MAX_VALUE)))
+							.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 240, Short.MAX_VALUE)))
 					.addContainerGap())
 		);
 		gl_contentPanel.setVerticalGroup(
 			gl_contentPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPanel.createSequentialGroup()
-					.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_2, 0, 0, Short.MAX_VALUE)
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 79, GroupLayout.PREFERRED_SIZE)
 						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 79, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 137, Short.MAX_VALUE))
+					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 58, Short.MAX_VALUE))
 		);
 		
 		JButton btnNewButton = new JButton("Exportar");
@@ -124,11 +126,8 @@ public class Configuracion extends JDialog {
 				if (seleccion == JFileChooser.APPROVE_OPTION) {
 				   if (fileChooser.getCurrentDirectory().isDirectory()){
 					   try {
-						   FileOutputStream fileOut = new FileOutputStream(fileChooser.getSelectedFile()+".data");
-						   ObjectOutputStream out = new ObjectOutputStream(fileOut);
-						   out.writeObject(data);
-						   out.close();
-						   fileOut.close();
+						   DataController dataController = new DataController();
+						   dataController.exportar(fileChooser.getSelectedFile().toString(), getData());
 						   JOptionPane.showMessageDialog(
 								   contentPanel,
 								   "Data guardada con éxito.");
@@ -136,8 +135,7 @@ public class Configuracion extends JDialog {
 					   catch(IOException i) {
 						   JOptionPane.showMessageDialog(
 								   contentPanel,
-								   "Error: "+i.getMessage()+".");
-						   i.printStackTrace();
+								   "Error: "+i+".");
 					   }
 				   }
 				   else{
@@ -163,20 +161,19 @@ public class Configuracion extends JDialog {
 				{
 				   if (fileChooser.getSelectedFile().exists()){
 					   try {
-						   FileInputStream fileIn = new FileInputStream(fileChooser.getSelectedFile());
-						   ObjectInputStream in = new ObjectInputStream(fileIn);
-						   data = (Data) in.readObject();
-						   in.close();
-						   fileIn.close();
+						   DataController dataController = new DataController();
+						   setData(dataController.importar(fileChooser.getSelectedFile().toString()));
+						   refresh(getData());
+						   numeroSpinner.setValue(Integer.parseInt((table.getValueAt(table.getRowCount()-1, 0).toString()))+1);
 					   }catch(IOException i) {
-						   i.printStackTrace();
-						   return;
+						   JOptionPane.showMessageDialog(
+								   contentPanel,
+								   "Error: "+i.getMessage());
 					   }catch(ClassNotFoundException c) {
 
 						   JOptionPane.showMessageDialog(
 								   contentPanel,
 								   "Error: "+c.getMessage());
-						   return;
 					   }
 				   }
 				   else{
@@ -208,11 +205,12 @@ public class Configuracion extends JDialog {
 		
 		JLabel lblGanancia = new JLabel("Ganancia:");
 		
-		JSpinner spinner_1 = new JSpinner();
-		spinner_1.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		spinner = new JSpinner();
+		spinner.setEnabled(false);
+		spinner.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
 		
-		JSpinner spinner_2 = new JSpinner();
-		spinner_2.setModel(new SpinnerNumberModel(new Float(1), new Float(1), null, new Float(1)));
+		spinner_1 = new JSpinner();
+		spinner_1.setModel(new SpinnerNumberModel(new Float(1), new Float(1), null, new Float(1)));
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
@@ -222,8 +220,8 @@ public class Configuracion extends JDialog {
 						.addComponent(lblUnidad))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(spinner_2, GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
-						.addComponent(spinner_1, GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE))
+						.addComponent(spinner_1, GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
+						.addComponent(spinner, GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_panel.setVerticalGroup(
@@ -231,11 +229,11 @@ public class Configuracion extends JDialog {
 				.addGroup(gl_panel.createSequentialGroup()
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblUnidad)
-						.addComponent(spinner_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(spinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblGanancia)
-						.addComponent(spinner_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(spinner_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
@@ -247,9 +245,9 @@ public class Configuracion extends JDialog {
 		panel_4.setBorder(new TitledBorder(null, "Lista de n\u00FAmeros", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(
-			gl_panel_1.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, gl_panel_1.createSequentialGroup()
-					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			gl_panel_1.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_1.createSequentialGroup()
+					.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(panel_4, GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
 					.addContainerGap())
@@ -321,37 +319,32 @@ public class Configuracion extends JDialog {
 					if (table.getValueAt(i, 1).toString().equals(nombreTextField.getText().toString()))
 						nombre_cont++;
 				}
-				if (numero_cont>0 || nombre_cont>0){
-					if (numero_cont>0)
-						JOptionPane.showMessageDialog(
-								   contentPanel,
-								   "El número ya ha sido agragado");
-					else
-						JOptionPane.showMessageDialog(
-								   contentPanel,
-								   "El nombre ya ha sido agragado");
+				if (numero_cont>0){
+					numeroSpinner.setValue((Integer.parseInt(defaultTableModel.getValueAt(table.getRowCount()-1, 0).toString())+1));
+					numeroSpinner.requestFocus();
+					JOptionPane.showMessageDialog(
+							contentPanel,
+							"El número ya ha sido agragado");
+				}
+				else if (nombre_cont>0){
+					nombreTextField.requestFocus();
+					JOptionPane.showMessageDialog(
+							contentPanel,
+							"El nombre ya ha sido agragado");
+				}
+				else if (nombreTextField.getText().toString().length() == 0) {
+					nombreTextField.requestFocus();
+					JOptionPane.showMessageDialog(
+							contentPanel,
+							"El campo -Nombre- está vacío.");
 				}
 				else{
-					if (numeroSpinner.getValue().toString().length() == 0){
-						JOptionPane.showMessageDialog(
-								   contentPanel,
-								   "El campo -Número- está vacío.");
-					}
-					else{
-						if (nombreTextField.getText().toString().length() == 0) {
-							JOptionPane.showMessageDialog(
-									   contentPanel,
-									   "El campo -Nombre- está vacío.");
-						}
-						else {
-							defaultTableModel.addRow(new Object[1]);
-							defaultTableModel.setValueAt(numeroSpinner.getValue().toString(), table.getRowCount()-1, 0);
-							defaultTableModel.setValueAt(nombreTextField.getText().toString(), table.getRowCount()-1, 1);
-							table.setModel(defaultTableModel);
-							nombreTextField.setText("");
-							//numeroSpinner.setValue("1");
-						}
-					}
+					defaultTableModel.addRow(new Object[1]);
+					defaultTableModel.setValueAt(numeroSpinner.getValue().toString(), table.getRowCount()-1, 0);
+					defaultTableModel.setValueAt(nombreTextField.getText().toString(), table.getRowCount()-1, 1);
+					table.setModel(defaultTableModel);
+					nombreTextField.setText("");
+					numeroSpinner.setValue((Integer.parseInt(defaultTableModel.getValueAt(table.getRowCount()-1, 0).toString())+1));
 				}
 			}
 		});
@@ -364,6 +357,7 @@ public class Configuracion extends JDialog {
 					((DefaultTableModel) table.getModel()).removeRow(table.getRowCount()-1);
 				}
 				else{
+					nombreTextField.requestFocus();
 					JOptionPane.showMessageDialog(
 							   contentPanel,
 							   "No hay números registrados.");
@@ -385,7 +379,7 @@ public class Configuracion extends JDialog {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(nombreTextField, GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
 						.addGroup(gl_panel_3.createSequentialGroup()
-							.addComponent(btnNewButton_1, GroupLayout.PREFERRED_SIZE, 93, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btnNewButton_1, GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnNewButton_2, GroupLayout.PREFERRED_SIZE, 90, Short.MAX_VALUE)))
 					.addContainerGap())
@@ -414,6 +408,27 @@ public class Configuracion extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("Guardar cambios");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						Loteria loteria = new Loteria();
+						loteria.setGanancia(Double.parseDouble(spinner_1.getValue().toString()));
+						DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+						ArrayList<Ficha> fichas = new ArrayList<Ficha>();
+						Ficha ficha;
+						for (int i=0; i < defaultTableModel.getRowCount(); i++){
+							ficha = new Ficha();
+							ficha.setNumero(Integer.parseInt(defaultTableModel.getValueAt(i, 0).toString()));
+							ficha.setNombre(defaultTableModel.getValueAt(i, 1).toString());
+							fichas.add(ficha);
+							System.out.print("id: "+fichas.get(i).getNumero()+" \t nombre: "+fichas.get(i).getNombre()+"\n"); 
+						}
+						loteria.setFichas(fichas);
+						data.setLoteria(loteria);
+						JOptionPane.showMessageDialog(
+								   contentPanel,
+								   "Cambios guardados exitosamente.");
+					}
+				});
 				okButton.setIcon(new ImageIcon(Configuracion.class.getResource("/configuracion/save.png")));
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
@@ -431,5 +446,24 @@ public class Configuracion extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+	}
+	public void setData(Data data){
+		this.data = data;
+	}
+	public Data getData(){
+		return this.data;
+	}
+	public void refresh(Data data){
+		spinner_1.setValue(data.getLoteria().getGanancia());
+		DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+		defaultTableModel.setRowCount(0);
+		for (Ficha ficha: data.getLoteria().getFichas()){
+			defaultTableModel.addRow(new Object[1]);
+			defaultTableModel.setValueAt(ficha.getNumero(), defaultTableModel.getRowCount()-1, 0);
+			defaultTableModel.setValueAt(ficha.getNombre(), defaultTableModel.getRowCount()-1, 1);
+			//System.out.print("id: "+ficha.getNumero()+" \t nombre: "+ficha.getNombre()+"\n"); 
+		}
+		table.setModel(defaultTableModel);
+		nombreTextField.setText("");
 	}
 }
