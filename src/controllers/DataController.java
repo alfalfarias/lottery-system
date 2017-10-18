@@ -11,7 +11,9 @@ import models.Data;
 public class DataController {
 	String format = ".data";
 	public void exportar(String path, Data data) throws IOException{
-		FileOutputStream fileOut = new FileOutputStream(path+format);
+		if (!path.endsWith(".data"))
+			path+=format;
+		FileOutputStream fileOut = new FileOutputStream(path);
 		   ObjectOutputStream out = new ObjectOutputStream(fileOut);
 		   out.writeObject(data);
 		   out.close();
@@ -24,5 +26,8 @@ public class DataController {
 		   in.close();
 		   fileIn.close();
 		   return data;
+	}
+	public static void main(String[] args){
+		    System.out.print("DataController");
 	}
 }
