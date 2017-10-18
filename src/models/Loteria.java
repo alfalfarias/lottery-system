@@ -1,23 +1,23 @@
 package models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Loteria {
-	int apuesta;
+public class Loteria implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1681469151721454253L;
 	double ganancia;
-	double relacion;
-	ArrayList<Ficha> fichas = new ArrayList<Ficha>();
-	public Loteria(int apuesta, double ganancia, ArrayList<Ficha> fichas) {
+	ArrayList<Ficha> fichas;
+	public Loteria(double ganancia, ArrayList<Ficha> fichas) {
 		super();
-		this.apuesta = apuesta;
 		this.ganancia = ganancia;
 		this.fichas = fichas;
 	}
-	public int getApuesta() {
-		return apuesta;
-	}
-	public void setApuesta(int apuesta) {
-		this.apuesta = apuesta;
+	public Loteria(){
+		super();
+		this.fichas = new ArrayList<Ficha>();
 	}
 	public double getGanancia() {
 		return ganancia;
@@ -30,11 +30,5 @@ public class Loteria {
 	}
 	public void setFichas(ArrayList<Ficha> fichas) {
 		this.fichas = fichas;
-	}
-	public double getRelacion() {
-		return relacion;
-	}
-	public void setRelacion(double relacion) {
-		this.relacion = relacion;
 	}
 }

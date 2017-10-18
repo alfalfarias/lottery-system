@@ -1,6 +1,12 @@
 package models;
 
-public class Apuesta {
+import java.io.Serializable;
+
+public class Apuesta implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8671293462464591777L;
 	int id;
 	Ficha ficha;
 	Persona persona;
@@ -14,6 +20,12 @@ public class Apuesta {
 		this.persona = persona;
 		this.monto = monto;
 		this.estado = estado;
+	}
+	Apuesta(){
+		super();
+		this.ficha = new Ficha();
+		this.persona = new Persona();
+		this.estado = new String();
 	}
 	public int getId() {
 		return id;
@@ -44,5 +56,9 @@ public class Apuesta {
 	}
 	public void setEstado(String estado) {
 		this.estado = estado;
+	}
+	public static void main(String[] args){
+		Apuesta ap = new Apuesta();
+		System.out.print(ap.getId());
 	}
 }
