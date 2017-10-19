@@ -22,7 +22,6 @@ import javax.swing.SpinnerNumberModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.event.ChangeListener;
@@ -31,8 +30,6 @@ import javax.swing.SwingConstants;
 
 import models.Data;
 import models.Ficha;
-
-import javax.swing.DefaultComboBoxModel;
 
 public class ApuestaView extends JPanel {
 	/**
