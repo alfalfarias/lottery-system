@@ -56,7 +56,7 @@ public class Informacion extends JDialog {
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "UNIVERSIDAD DE ORIENTE", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
-		JLabel lblTallerDeOad = new JLabel("Taller de Objetos y abstracci\u00F3n de Datos");
+		JLabel lblTallerDeOad = new JLabel("Objetos y abstracci\u00F3n de Datos");
 		lblTallerDeOad.setFont(new Font("Tahoma", Font.BOLD, 13));
 		lblTallerDeOad.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel label = new JLabel("");

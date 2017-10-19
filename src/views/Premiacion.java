@@ -86,9 +86,9 @@ public class Premiacion extends JDialog {
 				gl_panel.createParallelGroup(Alignment.LEADING)
 					.addGroup(gl_panel.createSequentialGroup()
 						.addComponent(lblSeleccionarTicket)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
+						.addGap(10)
 						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGap(6)
 						.addComponent(btnNewButton, GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE))
 					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
 			);
@@ -100,7 +100,7 @@ public class Premiacion extends JDialog {
 							.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
 							.addComponent(btnNewButton))
 						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
 						.addContainerGap())
 			);
 			panel.setLayout(gl_panel);
