@@ -75,6 +75,11 @@ public class Configuracion extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
+	public Configuracion(Data data){
+		this();
+		this.data = data;
+		refresh(data);
+	}
 	public Configuracion() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Configuracion.class.getResource("/configuracion/configuration.png")));
 		setTitle("Sorteo - Configuraci\u00F3n");
@@ -162,8 +167,7 @@ public class Configuracion extends JDialog {
 				   if (fileChooser.getSelectedFile().exists()){
 					   try {
 						   DataController dataController = new DataController();
-						   setData(dataController.importar(fileChooser.getSelectedFile().toString()));
-						   refresh(getData());
+						   refresh(dataController.importar(fileChooser.getSelectedFile().toString()));
 						   numeroSpinner.setValue(Integer.parseInt((table.getValueAt(table.getRowCount()-1, 0).toString()))+1);
 					   }catch(IOException i) {
 						   JOptionPane.showMessageDialog(
@@ -420,9 +424,10 @@ public class Configuracion extends JDialog {
 							ficha.setNumero(Integer.parseInt(defaultTableModel.getValueAt(i, 0).toString()));
 							ficha.setNombre(defaultTableModel.getValueAt(i, 1).toString());
 							fichas.add(ficha);
-							System.out.print("id: "+fichas.get(i).getNumero()+" \t nombre: "+fichas.get(i).getNombre()+"\n"); 
+							//System.out.print("id: "+fichas.get(i).getNumero()+" \t nombre: "+fichas.get(i).getNombre()+"\n"); 
 						}
 						loteria.setFichas(fichas);
+						loteria.setGanancia(Double.parseDouble(spinner_1.getValue().toString()));
 						data.setLoteria(loteria);
 						JOptionPane.showMessageDialog(
 								   contentPanel,

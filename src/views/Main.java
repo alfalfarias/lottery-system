@@ -6,7 +6,6 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,7 +16,11 @@ import javax.swing.UIManager;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.ImageIcon;
+
+import models.Data;
+
 import java.awt.Toolkit;
 
 public class Main extends JFrame {
@@ -28,6 +31,7 @@ public class Main extends JFrame {
 	private static final long serialVersionUID = -4537834553572450874L;
 	private JPanel contentPane;
 	private JPanel panel;
+	private Data data = new Data();
 
 	/**
 	 * Launch the application.
@@ -73,10 +77,12 @@ public class Main extends JFrame {
 		mntmImportarData.setIcon(new ImageIcon(Main.class.getResource("/configuracion/configuration.png")));
 		mntmImportarData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Configuracion configuracion=new Configuracion();
+				Configuracion configuracion=new Configuracion(getData());
 				configuracion.setLocationRelativeTo(contentPane);
 				configuracion.setModal(true);
 				configuracion.setVisible(true);
+				setData(configuracion.getData());
+				//System.out.print(getData().getLoteria().getGanancia());
 			}
 		});
 		mnArchivo.add(mntmImportarData);
@@ -163,6 +169,14 @@ public class Main extends JFrame {
 		//Inicialización
 		printHome();
 	}
+
+	public Data getData() {
+		return data;
+	}
+
+	public void setData(Data data) {
+		this.data = data;
+	}
 	void printHome(){
 		panel.removeAll();
 		panel.setLayout(new BorderLayout(0, 0));
@@ -180,10 +194,11 @@ public class Main extends JFrame {
 	}
 	void printApuesta(){
 		panel.removeAll();
-		Apuesta apuesta = new Apuesta();
+		ApuestaView apuesta = new ApuestaView(data);
 		panel.add(apuesta);
 		panel.revalidate();
 		panel.repaint();
+		System.out.print("Hola");
 	}
 	void printEstadistica(){
 		panel.removeAll();
@@ -192,4 +207,5 @@ public class Main extends JFrame {
 		panel.revalidate();
 		panel.repaint();
 	}
+
 }

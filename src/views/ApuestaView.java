@@ -22,14 +22,19 @@ import javax.swing.SpinnerNumberModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.SwingConstants;
+
+import models.Data;
+import models.Ficha;
+
 import javax.swing.DefaultComboBoxModel;
 
-public class Apuesta extends JPanel {
+public class ApuestaView extends JPanel {
 	/**
 	 * 
 	 */
@@ -41,21 +46,24 @@ public class Apuesta extends JPanel {
 	private JSpinner montoSpinner;
 	private JPanel panel;
 	private JPanel panel_1;
-	@SuppressWarnings("rawtypes")
-	private JComboBox idComboBox;
+	private JComboBox<Integer> idComboBox;
 	private JButton btnNewButton_1;
 	private JLabel lblAnimalito;
-	@SuppressWarnings("rawtypes")
-	private JComboBox comboBox;
+	private JComboBox<Integer> comboBox;
 	private JLabel lblGanancia;
 	private JTextField gananciaTextField;
 	private JTextField nombreTextField;
-
+	
+	private Data data = new Data();
 	/**
 	 * Create the panel.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Apuesta() {
+	public ApuestaView(Data data){
+		this();
+		this.data = (data);
+		refresh();
+	}
+	public ApuestaView() {
 		
 		panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "Registrar nuevo Ticket", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -138,9 +146,9 @@ public class Apuesta extends JPanel {
 					defaultTableModel.setValueAt(nombresTextField.getText().toString(), table.getRowCount()-1, 3);
 					defaultTableModel.setValueAt(apellidosTextField.getText().toString(), table.getRowCount()-1, 4);
 					defaultTableModel.setValueAt(montoSpinner.getValue().toString(), table.getRowCount()-1, 5);
-					defaultTableModel.setValueAt(montoSpinner.getValue().toString(), table.getRowCount()-1, 6);
+					defaultTableModel.setValueAt(Double.parseDouble(montoSpinner.getValue().toString())*data.getLoteria().getGanancia(), table.getRowCount()-1, 6);
 					table.setModel(defaultTableModel);
-					idComboBox.addItem(id+"");
+					idComboBox.addItem(id);
 					cedulaTextField.setText("");
 					nombresTextField.setText("");
 					apellidosTextField.setText("");
@@ -148,21 +156,30 @@ public class Apuesta extends JPanel {
 				}
 			}
 		});
-		btnNewButton.setIcon(new ImageIcon(Apuesta.class.getResource("/apuesta/invoice.png")));
+		btnNewButton.setIcon(new ImageIcon(ApuestaView.class.getResource("/apuesta/invoice.png")));
 		
 		montoSpinner = new JSpinner();
 		montoSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 
-				gananciaTextField.setText(montoSpinner.getValue().toString());
+				gananciaTextField.setText(data.getLoteria().getGanancia()*Double.parseDouble(montoSpinner.getValue().toString())+"");
 			}
 		});
 		montoSpinner.setModel(new SpinnerNumberModel(new Float(1), new Float(1), null, new Float(1)));
 		
 		lblAnimalito = new JLabel("Selecci\u00F3n:");
 		
-		comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"1111"}));
+		comboBox = new JComboBox<Integer>();
+		
+		comboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				for (Ficha ficha: data.getLoteria().getFichas()){
+					if (ficha.getNumero() == Integer.parseInt(comboBox.getSelectedItem().toString())){
+						nombreTextField.setText(ficha.getNombre());
+					}
+				}
+			}
+		});
 		
 		lblGanancia = new JLabel("Ganancia:");
 		
@@ -172,7 +189,6 @@ public class Apuesta extends JPanel {
 		gananciaTextField.setColumns(10);
 		
 		nombreTextField = new JTextField();
-		nombreTextField.setText("nombre");
 		nombreTextField.setEditable(false);
 		nombreTextField.setColumns(10);
 		GroupLayout gl_panel = new GroupLayout(panel);
@@ -254,10 +270,10 @@ public class Apuesta extends JPanel {
 		));
 		scrollPane.setViewportView(table);
 		
-		idComboBox = new JComboBox();
+		idComboBox = new JComboBox<Integer>();
 		
 		btnNewButton_1 = new JButton("Eliminar");
-		btnNewButton_1.setIcon(new ImageIcon(Apuesta.class.getResource("/apuesta/delete.png")));
+		btnNewButton_1.setIcon(new ImageIcon(ApuestaView.class.getResource("/apuesta/delete.png")));
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (idComboBox.getSelectedItem() == null){
@@ -302,4 +318,38 @@ public class Apuesta extends JPanel {
 		setLayout(groupLayout);
 
 	}
+	public Data getData() {
+		return this.data;
+	}
+	public void setData(Data data) {
+		this.data = data;
+	}
+	public void refresh(){
+		DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+		defaultTableModel.setRowCount(0);
+		for (models.Apuesta apuesta: getData().getApuestas()){
+			defaultTableModel.addRow(new Object[1]);
+			defaultTableModel.setValueAt(apuesta.getId(), defaultTableModel.getRowCount()-1, 0);
+			defaultTableModel.setValueAt(apuesta.getFicha().getNumero()+" - "+apuesta.getFicha().getNombre(), defaultTableModel.getRowCount()-1, 1);
+			defaultTableModel.setValueAt(apuesta.getPersona().getCedula(), defaultTableModel.getRowCount()-1, 2);
+			defaultTableModel.setValueAt(apuesta.getPersona().getNombres(), defaultTableModel.getRowCount()-1, 3);
+			defaultTableModel.setValueAt(apuesta.getPersona().getApellidos(), defaultTableModel.getRowCount()-1, 4);
+			defaultTableModel.setValueAt(apuesta.getMonto(), defaultTableModel.getRowCount()-1, 5);
+			defaultTableModel.setValueAt((apuesta.getMonto()*getData().getLoteria().getGanancia()), defaultTableModel.getRowCount()-1, 6);
+		}
+		table.setModel(defaultTableModel);
+		Vector<Integer> comboBoxItems=new Vector<Integer>();
+		for (Ficha ficha: getData().getLoteria().getFichas()){
+			comboBoxItems.add(ficha.getNumero());
+		}
+		DefaultComboBoxModel<Integer> model = new DefaultComboBoxModel<Integer>(comboBoxItems);
+		comboBox.setModel(model);
+		for (Ficha ficha: data.getLoteria().getFichas()){
+			if (ficha.getNumero() == Integer.parseInt(comboBox.getSelectedItem().toString())){
+				nombreTextField.setText(ficha.getNombre());
+			}
+		}
+		gananciaTextField.setText(data.getLoteria().getGanancia()+"");
+	}
+	
 }

@@ -8,7 +8,7 @@ public class Loteria implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1681469151721454253L;
-	double ganancia;
+	double ganancia=1;
 	ArrayList<Ficha> fichas;
 	public Loteria(double ganancia, ArrayList<Ficha> fichas) {
 		super();
