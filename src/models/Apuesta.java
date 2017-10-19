@@ -8,10 +8,10 @@ public class Apuesta implements Serializable {
 	 */
 	private static final long serialVersionUID = 8671293462464591777L;
 	int id;
-	Ficha ficha;
-	Persona persona;
+	Ficha ficha = new Ficha();
+	Persona persona = new Persona();
 	double monto;
-	String estado;
+	String estado=new String();
 	public Apuesta(int id, Ficha ficha, Persona persona, double monto,
 			String estado) {
 		super();
@@ -21,7 +21,7 @@ public class Apuesta implements Serializable {
 		this.monto = monto;
 		this.estado = estado;
 	}
-	Apuesta(){
+	public Apuesta(){
 		super();
 		this.ficha = new Ficha();
 		this.persona = new Persona();

@@ -56,6 +56,7 @@ public class Configuracion extends JDialog {
 	private JSpinner numeroSpinner;
 	
 	Data data = new Data();
+	Data dataCache = new Data();
 	private JSpinner spinner;
 	private JSpinner spinner_1;
 
@@ -428,10 +429,12 @@ public class Configuracion extends JDialog {
 						}
 						loteria.setFichas(fichas);
 						loteria.setGanancia(Double.parseDouble(spinner_1.getValue().toString()));
-						data.setLoteria(loteria);
+						dataCache.setLoteria(loteria);
+						data = (dataCache);
 						JOptionPane.showMessageDialog(
 								   contentPanel,
 								   "Cambios guardados exitosamente.");
+						dispose();
 					}
 				});
 				okButton.setIcon(new ImageIcon(Configuracion.class.getResource("/configuracion/save.png")));
@@ -470,5 +473,6 @@ public class Configuracion extends JDialog {
 		}
 		table.setModel(defaultTableModel);
 		nombreTextField.setText("");
+		this.dataCache = data;
 	}
 }

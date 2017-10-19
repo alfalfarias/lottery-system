@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -20,8 +21,12 @@ import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 
 import models.Data;
+import models.Apuesta;
+import models.Ficha;
+import models.Persona;
 
 import java.awt.Toolkit;
+import java.util.ArrayList;
 
 public class Main extends JFrame {
 
@@ -83,6 +88,7 @@ public class Main extends JFrame {
 				configuracion.setVisible(true);
 				setData(configuracion.getData());
 				//System.out.print(getData().getLoteria().getGanancia());
+				printHome();
 			}
 		});
 		mnArchivo.add(mntmImportarData);
@@ -194,11 +200,79 @@ public class Main extends JFrame {
 	}
 	void printApuesta(){
 		panel.removeAll();
-		ApuestaView apuesta = new ApuestaView(data);
-		panel.add(apuesta);
+		final ApuestaView apuestaView = new ApuestaView(data);
+		apuestaView.btnNewButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				if (apuestaView.cedulaTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							contentPane,
+							"El campo -Cédula- está vacío.");
+				}
+				else if (apuestaView.nombresTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							contentPane,
+							"El campo -Nombres- está vacío.");
+				}
+				else if (apuestaView.apellidosTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							contentPane,
+							"El campo -Apellidos- está vacío.");
+				}
+				else if (apuestaView.comboBox.getSelectedItem() == null){
+					JOptionPane.showMessageDialog(
+							contentPane,
+							"No ha seleccionado ningún item a apostar.");
+				}
+				else {
+					DefaultTableModel defaultTableModel = (DefaultTableModel) apuestaView.table.getModel();
+					int id = apuestaView.table.getRowCount();
+					if (apuestaView.table.getRowCount() == 0){
+						id = 1;
+					}
+					else{
+						id = Integer.parseInt(defaultTableModel.getValueAt(apuestaView.table.getRowCount()-1, 0).toString())+1;
+					}
+					defaultTableModel.addRow(new Object[1]);
+					defaultTableModel.setValueAt(id+"", apuestaView.table.getRowCount()-1, 0);
+					defaultTableModel.setValueAt(apuestaView.comboBox.getSelectedItem().toString()+"-"+apuestaView.nombreTextField.getText().toString(), apuestaView.table.getRowCount()-1, 1);
+					defaultTableModel.setValueAt(apuestaView.cedulaTextField.getText().toString(), apuestaView.table.getRowCount()-1, 2);
+					defaultTableModel.setValueAt(apuestaView.nombresTextField.getText().toString(), apuestaView.table.getRowCount()-1, 3);
+					defaultTableModel.setValueAt(apuestaView.apellidosTextField.getText().toString(), apuestaView.table.getRowCount()-1, 4);
+					defaultTableModel.setValueAt(apuestaView.montoSpinner.getValue().toString(), apuestaView.table.getRowCount()-1, 5);
+					defaultTableModel.setValueAt(Double.parseDouble(apuestaView.montoSpinner.getValue().toString())*data.getLoteria().getGanancia(), apuestaView.table.getRowCount()-1, 6);
+					apuestaView.table.setModel(defaultTableModel);
+					apuestaView.idComboBox.addItem(id);
+					apuestaView.cedulaTextField.setText("");
+					apuestaView.nombresTextField.setText("");
+					apuestaView.apellidosTextField.setText("");
+					
+					//Agregar a caché
+					defaultTableModel = (DefaultTableModel) apuestaView.table.getModel();
+					ArrayList<Apuesta> apuestas = new ArrayList<Apuesta>();
+					Apuesta apuesta = new Apuesta();
+					String ficha_aux;
+					for (int i=0; i < defaultTableModel.getRowCount(); i++){
+						apuesta = new Apuesta();
+						apuesta.setId(Integer.parseInt(defaultTableModel.getValueAt(i, 0).toString()));
+						ficha_aux = defaultTableModel.getValueAt(i, 1).toString();
+						System.out.print(ficha_aux);
+						apuesta.setFicha(new Ficha(Integer.parseInt(ficha_aux.substring(0,ficha_aux.indexOf("-"))),
+								ficha_aux.substring(ficha_aux.indexOf("-") + 1)));
+						apuesta.setPersona(new Persona(defaultTableModel.getValueAt(i, 2).toString().toString(),
+								defaultTableModel.getValueAt(i, 3).toString().toString(),
+								defaultTableModel.getValueAt(i, 4).toString().toString()));
+						apuesta.setMonto(Double.parseDouble(defaultTableModel.getValueAt(i, 5).toString().toString()));
+						apuesta.setEstado("pendiente");
+						apuestas.add(apuesta);
+					}
+					data.setApuestas(apuestas);
+				}
+			}
+		});
+		panel.add(apuestaView);
 		panel.revalidate();
 		panel.repaint();
-		System.out.print("Hola");
 	}
 	void printEstadistica(){
 		panel.removeAll();

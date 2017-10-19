@@ -28,6 +28,7 @@ public class DataController {
 		   return data;
 	}
 	public static void main(String[] args){
-		    System.out.print("DataController");
+		String example = "/abc/def/gefj.doc";
+	    System.out.println(example.substring(0,example.indexOf("e")));
 	}
 }

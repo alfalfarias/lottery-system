@@ -39,22 +39,23 @@ public class ApuestaView extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -3692865805718441767L;
-	private JTable table;
-	private JTextField cedulaTextField;
-	private JTextField nombresTextField;
-	private JTextField apellidosTextField;
-	private JSpinner montoSpinner;
-	private JPanel panel;
-	private JPanel panel_1;
-	private JComboBox<Integer> idComboBox;
-	private JButton btnNewButton_1;
-	private JLabel lblAnimalito;
-	private JComboBox<Integer> comboBox;
-	private JLabel lblGanancia;
-	private JTextField gananciaTextField;
-	private JTextField nombreTextField;
+	public JTable table;
+	public JTextField cedulaTextField;
+	public JTextField nombresTextField;
+	public JTextField apellidosTextField;
+	public JSpinner montoSpinner;
+	public JPanel panel;
+	public JPanel panel_1;
+	public JComboBox<Integer> idComboBox;
+	public JButton btnNewButton_1;
+	public JLabel lblAnimalito;
+	public JComboBox<Integer> comboBox;
+	public JLabel lblGanancia;
+	public JTextField gananciaTextField;
+	public JTextField nombreTextField;
 	
-	private Data data = new Data();
+	public Data data = new Data();
+	JButton btnNewButton;
 	/**
 	 * Create the panel.
 	 */
@@ -107,55 +108,7 @@ public class ApuestaView extends JPanel {
 		
 		JLabel lblMonto = new JLabel("Monto:");
 		
-		JButton btnNewButton = new JButton("Generar Ticket");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (cedulaTextField.getText().toString().length() == 0){
-					JOptionPane.showMessageDialog(
-							panel_1,
-							"El campo -Cédula- está vacío.");
-				}
-				else if (nombresTextField.getText().toString().length() == 0){
-					JOptionPane.showMessageDialog(
-							panel_1,
-							"El campo -Nombres- está vacío.");
-				}
-				else if (apellidosTextField.getText().toString().length() == 0){
-					JOptionPane.showMessageDialog(
-							panel_1,
-							"El campo -Apellidos- está vacío.");
-				}
-				else if (comboBox.getSelectedItem() == null){
-					JOptionPane.showMessageDialog(
-							panel_1,
-							"No ha seleccionado ningún item a apostar.");
-				}
-				else {
-					DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
-					int id = table.getRowCount();
-					if (table.getRowCount() == 0){
-						id = 1;
-					}
-					else{
-						id = Integer.parseInt(defaultTableModel.getValueAt(table.getRowCount()-1, 0).toString())+1;
-					}
-					defaultTableModel.addRow(new Object[1]);
-					defaultTableModel.setValueAt(id+"", table.getRowCount()-1, 0);
-					defaultTableModel.setValueAt(comboBox.getSelectedItem().toString(), table.getRowCount()-1, 1);
-					defaultTableModel.setValueAt(cedulaTextField.getText().toString(), table.getRowCount()-1, 2);
-					defaultTableModel.setValueAt(nombresTextField.getText().toString(), table.getRowCount()-1, 3);
-					defaultTableModel.setValueAt(apellidosTextField.getText().toString(), table.getRowCount()-1, 4);
-					defaultTableModel.setValueAt(montoSpinner.getValue().toString(), table.getRowCount()-1, 5);
-					defaultTableModel.setValueAt(Double.parseDouble(montoSpinner.getValue().toString())*data.getLoteria().getGanancia(), table.getRowCount()-1, 6);
-					table.setModel(defaultTableModel);
-					idComboBox.addItem(id);
-					cedulaTextField.setText("");
-					nombresTextField.setText("");
-					apellidosTextField.setText("");
-					//montoSpinner.setValue(1+"");
-				}
-			}
-		});
+		btnNewButton = new JButton("Generar Ticket");
 		btnNewButton.setIcon(new ImageIcon(ApuestaView.class.getResource("/apuesta/invoice.png")));
 		
 		montoSpinner = new JSpinner();
@@ -336,14 +289,12 @@ public class ApuestaView extends JPanel {
 			defaultTableModel.setValueAt(apuesta.getPersona().getApellidos(), defaultTableModel.getRowCount()-1, 4);
 			defaultTableModel.setValueAt(apuesta.getMonto(), defaultTableModel.getRowCount()-1, 5);
 			defaultTableModel.setValueAt((apuesta.getMonto()*getData().getLoteria().getGanancia()), defaultTableModel.getRowCount()-1, 6);
+			idComboBox.addItem(apuesta.getId());
 		}
 		table.setModel(defaultTableModel);
-		Vector<Integer> comboBoxItems=new Vector<Integer>();
 		for (Ficha ficha: getData().getLoteria().getFichas()){
-			comboBoxItems.add(ficha.getNumero());
+			comboBox.addItem(ficha.getNumero());
 		}
-		DefaultComboBoxModel<Integer> model = new DefaultComboBoxModel<Integer>(comboBoxItems);
-		comboBox.setModel(model);
 		for (Ficha ficha: data.getLoteria().getFichas()){
 			if (ficha.getNumero() == Integer.parseInt(comboBox.getSelectedItem().toString())){
 				nombreTextField.setText(ficha.getNombre());

@@ -7,9 +7,9 @@ public class Persona implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -3743765693941408746L;
-	String cedula;
-	String nombres;
-	String apellidos;
+	String cedula = new String();
+	String nombres = new String();
+	String apellidos = new String();
 	public Persona(String cedula, String nombres, String apellidos) {
 		super();
 		this.cedula = cedula;
