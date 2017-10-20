@@ -169,7 +169,8 @@ public class Configuracion extends JDialog {
 					   try {
 						   DataController dataController = new DataController();
 						   refresh(dataController.importar(fileChooser.getSelectedFile().toString()));
-						   numeroSpinner.setValue(Integer.parseInt((table.getValueAt(table.getRowCount()-1, 0).toString()))+1);
+						   if (table.getRowCount()!=0)
+							   numeroSpinner.setValue(Integer.parseInt((table.getValueAt(table.getRowCount()-1, 0).toString()))+1);
 					   }catch(IOException i) {
 						   JOptionPane.showMessageDialog(
 								   contentPanel,
@@ -470,6 +471,7 @@ public class Configuracion extends JDialog {
 			defaultTableModel.setValueAt(ficha.getNumero(), defaultTableModel.getRowCount()-1, 0);
 			defaultTableModel.setValueAt(ficha.getNombre(), defaultTableModel.getRowCount()-1, 1);
 			//System.out.print("id: "+ficha.getNumero()+" \t nombre: "+ficha.getNombre()+"\n"); 
+			numeroSpinner.setValue(ficha.getNumero()+1);
 		}
 		table.setModel(defaultTableModel);
 		nombreTextField.setText("");

@@ -21,6 +21,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JComboBox;
@@ -28,8 +29,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.SwingConstants;
 
+import models.Apuesta;
 import models.Data;
 import models.Ficha;
+import models.Persona;
 
 public class ApuestaView extends JPanel {
 	/**
@@ -106,6 +109,75 @@ public class ApuestaView extends JPanel {
 		JLabel lblMonto = new JLabel("Monto:");
 		
 		btnNewButton = new JButton("Generar Ticket");
+		btnNewButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				if (cedulaTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							panel_1,
+							"El campo -Cédula- está vacío.");
+				}
+				else if (nombresTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							panel_1,
+							"El campo -Nombres- está vacío.");
+				}
+				else if (apellidosTextField.getText().toString().length() == 0){
+					JOptionPane.showMessageDialog(
+							panel_1,
+							"El campo -Apellidos- está vacío.");
+				}
+				else if (comboBox.getSelectedItem() == null){
+					JOptionPane.showMessageDialog(
+							panel_1,
+							"No ha seleccionado ningún item a apostar.");
+				}
+				else {
+					DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+					int id = table.getRowCount();
+					if (table.getRowCount() == 0){
+						id = 1;
+					}
+					else{
+						id = Integer.parseInt(defaultTableModel.getValueAt(table.getRowCount()-1, 0).toString())+1;
+					}
+					defaultTableModel.addRow(new Object[1]);
+					defaultTableModel.setValueAt(id+"", table.getRowCount()-1, 0);
+					defaultTableModel.setValueAt(comboBox.getSelectedItem().toString()+"-"+nombreTextField.getText().toString(), table.getRowCount()-1, 1);
+					defaultTableModel.setValueAt(cedulaTextField.getText().toString(), table.getRowCount()-1, 2);
+					defaultTableModel.setValueAt(nombresTextField.getText().toString(), table.getRowCount()-1, 3);
+					defaultTableModel.setValueAt(apellidosTextField.getText().toString(), table.getRowCount()-1, 4);
+					defaultTableModel.setValueAt(montoSpinner.getValue().toString(), table.getRowCount()-1, 5);
+					defaultTableModel.setValueAt(Double.parseDouble(montoSpinner.getValue().toString())*data.getLoteria().getGanancia(), table.getRowCount()-1, 6);
+					table.setModel(defaultTableModel);
+					idComboBox.addItem(id);
+					cedulaTextField.setText("");
+					nombresTextField.setText("");
+					apellidosTextField.setText("");
+					
+					//Agregar a caché
+					defaultTableModel = (DefaultTableModel) table.getModel();
+					ArrayList<Apuesta> apuestas = new ArrayList<Apuesta>();
+					Apuesta apuesta = new Apuesta();
+					String ficha_aux;
+					for (int i=0; i < defaultTableModel.getRowCount(); i++){
+						apuesta = new Apuesta();
+						apuesta.setId(Integer.parseInt(defaultTableModel.getValueAt(i, 0).toString()));
+						ficha_aux = defaultTableModel.getValueAt(i, 1).toString();
+						//System.out.print(ficha_aux);
+						apuesta.setFicha(new Ficha(Integer.parseInt(ficha_aux.substring(0,ficha_aux.indexOf("-"))),
+								ficha_aux.substring(ficha_aux.indexOf("-") + 1)));
+						apuesta.setPersona(new Persona(defaultTableModel.getValueAt(i, 2).toString().toString(),
+								defaultTableModel.getValueAt(i, 3).toString().toString(),
+								defaultTableModel.getValueAt(i, 4).toString().toString()));
+						apuesta.setMonto(Double.parseDouble(defaultTableModel.getValueAt(i, 5).toString().toString()));
+						apuesta.setEstado("pendiente");
+						apuestas.add(apuesta);
+					}
+					data.setApuestas(apuestas);
+				}
+			}
+		});
 		btnNewButton.setIcon(new ImageIcon(ApuestaView.class.getResource("/apuesta/invoice.png")));
 		
 		montoSpinner = new JSpinner();
@@ -280,7 +352,7 @@ public class ApuestaView extends JPanel {
 		for (models.Apuesta apuesta: getData().getApuestas()){
 			defaultTableModel.addRow(new Object[1]);
 			defaultTableModel.setValueAt(apuesta.getId(), defaultTableModel.getRowCount()-1, 0);
-			defaultTableModel.setValueAt(apuesta.getFicha().getNumero()+" - "+apuesta.getFicha().getNombre(), defaultTableModel.getRowCount()-1, 1);
+			defaultTableModel.setValueAt(apuesta.getFicha().getNumero()+"-"+apuesta.getFicha().getNombre(), defaultTableModel.getRowCount()-1, 1);
 			defaultTableModel.setValueAt(apuesta.getPersona().getCedula(), defaultTableModel.getRowCount()-1, 2);
 			defaultTableModel.setValueAt(apuesta.getPersona().getNombres(), defaultTableModel.getRowCount()-1, 3);
 			defaultTableModel.setValueAt(apuesta.getPersona().getApellidos(), defaultTableModel.getRowCount()-1, 4);

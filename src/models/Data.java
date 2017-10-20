@@ -24,10 +24,34 @@ public class Data implements Serializable {
 	public Loteria getLoteria(){
 		return this.loteria;
 	}
+	public void setApuesta(int i, Apuesta apuesta){
+		this.apuestas.set(i, apuesta);
+	}
+	public Apuesta getApuesta(int i){
+		return this.apuestas.get(i);
+	}
 	public void setApuestas(ArrayList<Apuesta> apuestas){
 		this.apuestas = apuestas;
 	}
 	public ArrayList<Apuesta> getApuestas(){
 		return this.apuestas;
+	}
+	public double totalApostado(int i){
+		double acum=0;
+		for(Apuesta apuesta: apuestas)
+			if (apuesta.getFicha().getNumero() == i)
+				acum+=apuesta.getMonto();
+		return acum;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	public int cantidadTickets(int i){
+		int cont=0;
+		for(Apuesta apuesta: apuestas)
+			if (apuesta.getFicha().getNumero() == i)
+				cont++;
+		return cont;
 	}
 }

@@ -12,8 +12,15 @@ import java.awt.Color;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import models.Apuesta;
+import models.Data;
+import models.Ficha;
+import models.Loteria;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import java.awt.Font;
 
@@ -23,6 +30,7 @@ import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 
 import java.awt.event.ActionListener;
+import java.util.Random;
 import java.awt.event.ActionEvent;
 
 public class Sorteo extends JPanel {
@@ -36,14 +44,21 @@ public class Sorteo extends JPanel {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JPanel panel;
-
+	private Data data = new Data();
+	private Ficha fichaGanador = new Ficha();
+	private JSpinner spinner;
 	/**
 	 * Create the panel.
 	 */
+	public Sorteo(Data data){
+		this();
+		this.data = data;
+		refresh();
+	}
 	public Sorteo() {
 		
 		panel = new JPanel();
-		panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Lista de apuestas (Ordenadas por Ficha y Ganancias)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Lista de apuestas (Ordenadas por Ficha)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "Detalles del Sorteo", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -76,7 +91,8 @@ public class Sorteo extends JPanel {
 		
 		JLabel lblNDeGanadores = new JLabel("N\u00B0 de Tickets premiados: ");
 		
-		JSpinner spinner = new JSpinner();
+		spinner = new JSpinner();
+		spinner.setEnabled(false);
 		
 		JLabel lblTotalAPagar = new JLabel("Total a Pagar:");
 		
@@ -96,10 +112,11 @@ public class Sorteo extends JPanel {
 		JButton btnNewButton = new JButton("Ganadores");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Premiacion premiacion=new Premiacion();
+				Premiacion premiacion=new Premiacion(data);
 				premiacion.setLocationRelativeTo(panel);
 				premiacion.setModal(true);
 				premiacion.setVisible(true);
+				refresh();
 			}
 		});
 		btnNewButton.setIcon(new ImageIcon(Sorteo.class.getResource("/sorteo/businessman.png")));
@@ -153,9 +170,70 @@ public class Sorteo extends JPanel {
 		JScrollPane scrollPane = new JScrollPane();
 		
 		JButton btnOrdenarAleatoriamente = new JButton("Sorteo Aleatorio");
+		btnOrdenarAleatoriamente.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (data.getLoteria().getFichas().size() == 0){
+					JOptionPane.showMessageDialog(
+							panel,
+							"No existen Fichas registradas.");
+				}
+				else{
+					Random randomGenerator = new Random();
+					//System.out.println("::BEFFORE:: ID: "+fichaGanador.getNumero()+" \t NOMBRE: "+fichaGanador.getNombre());
+					fichaGanador = data.getLoteria().getFichas().get(randomGenerator.nextInt(data.getLoteria().getFichas().size()));
+					//System.out.println("::AFTER:: ID: "+fichaGanador.getNumero()+" \t NOMBRE: "+fichaGanador.getNombre());
+					refresh();
+				}
+			}
+		});
 		btnOrdenarAleatoriamente.setIcon(new ImageIcon(Sorteo.class.getResource("/sorteo/shuffle.png")));
 		
 		JButton btnOrdenarPorMenor = new JButton("Sorteo por maximixar ganancias");
+		btnOrdenarPorMenor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (data.getLoteria().getFichas().size() == 0){
+					JOptionPane.showMessageDialog(
+							panel,
+							"No existen Fichas registradas.");
+				}
+				else{
+					int[] ficha_id = new int[data.getLoteria().getFichas().size()];
+					double[] ficha_pago = new double[data.getLoteria().getFichas().size()];
+					for (int i = 0; i < data.getLoteria().getFichas().size(); i++){
+						ficha_id[i] = (data.getLoteria().getFichas().get(i).getNumero());
+						ficha_pago[i] = data.getLoteria().getGanancia()*data.totalApostado(data.getLoteria().getFichas().get(i).getNumero());
+					}
+					//Ordenamos los ID
+					for(int k = 0; k < ficha_pago.length; k++)
+			            for(int f = 0;f < ficha_pago.length - 1 - k; f++)
+			                if (ficha_pago[f] > ficha_pago[f+1]) {
+			                    double ficha_pago_aux;
+			                    ficha_pago_aux=ficha_pago[f];
+			                    ficha_pago[f]=ficha_pago[f+1];
+			                    ficha_pago[f+1]=ficha_pago_aux;
+			                    int ficha_id_aux;
+			                    ficha_id_aux=ficha_id[f];
+			                    ficha_id[f]=ficha_id[f+1];
+			                    ficha_id[f+1] = ficha_id_aux;
+			                }
+					//Ordenamos la data
+					Loteria loteria = Main.data.getLoteria();
+					for(int i = 0; i < Main.data.getLoteria().getFichas().size(); i++)
+						if (Main.data.getLoteria().getFichas().get(i).getNumero() != ficha_id[i])
+							for (int j = 0; j < Main.data.getLoteria().getFichas().size(); j++)
+								if (Main.data.getLoteria().getFichas().get(j).getNumero() == ficha_id[i]){
+									Ficha fichaAux = Main.data.getLoteria().getFichas().get(i);
+									loteria.setFicha(i, Main.data.getLoteria().getFichas().get(j));
+									loteria.setFicha(j, fichaAux);
+								}
+					fichaGanador = loteria.getFicha(0);
+					loteria.setFichaGanador(fichaGanador);
+					Main.data.setLoteria(loteria);
+					//System.out.println("::AFTER:: ID: "+fichaGanador.getNumero()+" \t NOMBRE: "+fichaGanador.getNombre());
+						refresh();
+				}
+			}
+		});
 		btnOrdenarPorMenor.setIcon(new ImageIcon(Sorteo.class.getResource("/sorteo/graph.png")));
 		
 		JLabel lblNewLabel = new JLabel("Realiza el Sorteo de manera aleatoria.");
@@ -195,6 +273,7 @@ public class Sorteo extends JPanel {
 		);
 		
 		table = new JTable();
+		table.setEnabled(false);
 		table.setFillsViewportHeight(true);
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
@@ -208,5 +287,56 @@ public class Sorteo extends JPanel {
 		setLayout(groupLayout);
 
 	}
+	public void refresh(){
+		DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+		defaultTableModel.setRowCount(0);
+		for (Ficha ficha: data.getLoteria().getFichas()){
+			defaultTableModel.addRow(new Object[1]);
+			defaultTableModel.setValueAt(ficha.getNumero(), defaultTableModel.getRowCount()-1, 0);
+			defaultTableModel.setValueAt(ficha.getNombre(), defaultTableModel.getRowCount()-1, 1);
+			defaultTableModel.setValueAt(data.cantidadTickets(ficha.getNumero()), defaultTableModel.getRowCount()-1, 2);
+			defaultTableModel.setValueAt(data.totalApostado(ficha.getNumero()), defaultTableModel.getRowCount()-1, 3);
+			defaultTableModel.setValueAt(data.getLoteria().getGanancia()*data.totalApostado(ficha.getNumero()), defaultTableModel.getRowCount()-1, 4);
+		}
+		table.setModel(defaultTableModel);
 
+		if (fichaGanador.getNombre().length() != 0 || Main.data.getLoteria().getFichaGanador().getNombre().length() != 0){
+			Loteria loteria = Main.data.getLoteria();
+			if (fichaGanador.getNombre().length() != 0)
+				loteria.setFichaGanador(fichaGanador);
+			Main.data.setLoteria(loteria);
+			
+			textField.setText(Main.data.getLoteria().getFichaGanador().getNumero()+"-"+Main.data.getLoteria().getFichaGanador().getNombre());
+			double total_apostado = 0;
+			for(Ficha ficha: data.getLoteria().getFichas()){
+				if (ficha.getNumero() != fichaGanador.getNumero()){
+					total_apostado+=data.totalApostado(ficha.getNumero());
+				}
+			}
+			Apuesta apuesta = new Apuesta();
+			for (int i=0; i<data.getApuestas().size(); i++){
+				//System.out.println("Ficha: "+data.getApuestas().get(i).getFicha().getNumero()+" \t Ganador: "+fichaGanador.getNumero());
+				if (!data.getApuestas().get(i).getEstado().equals("::PAGADO::")){
+					apuesta = data.getApuestas().get(i);
+					if (data.getApuestas().get(i).getFicha().getNumero() == fichaGanador.getNumero()){
+						apuesta.setEstado("::GANADOR::");
+					}
+					else{
+						apuesta.setEstado("PERDEDOR");
+					}
+					data.setApuesta(i, apuesta);
+					
+				}
+			}
+			spinner.setValue(data.cantidadTickets(fichaGanador.getNumero()));
+			textField_1.setText(data.getLoteria().getGanancia()*data.totalApostado(fichaGanador.getNumero())+"");
+			textField_2.setText(total_apostado+"");
+		}
+	}
+	public Data getData() {
+		return data;
+	}
+	public void setData(Data data) {
+		this.data = data;
+	}
 }

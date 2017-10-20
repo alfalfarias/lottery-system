@@ -14,10 +14,15 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import models.Apuesta;
+import models.Data;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ImageIcon;
 
@@ -33,7 +38,8 @@ public class Premiacion extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JTable table;
 	private JScrollPane scrollPane;
-
+	Data data = new Data();
+	private JComboBox<Object> comboBox;
 	/**
 	 * Launch the application.
 	 */
@@ -45,6 +51,12 @@ public class Premiacion extends JDialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Premiacion(Data data) {
+		this();
+		setData(data);
+		refresh();
 	}
 
 	/**
@@ -66,6 +78,7 @@ public class Premiacion extends JDialog {
 				scrollPane = new JScrollPane();
 				{
 					table = new JTable();
+					table.setEnabled(false);
 					table.setFillsViewportHeight(true);
 					table.setModel(new DefaultTableModel(
 						new Object[][] {
@@ -77,9 +90,35 @@ public class Premiacion extends JDialog {
 					scrollPane.setViewportView(table);
 				}
 			}
-			JComboBox<Object> comboBox = new JComboBox<Object>();
+			comboBox = new JComboBox<Object>();
 			JLabel lblSeleccionarTicket = new JLabel("Seleccionar Ticket:");
-			JButton btnNewButton = new JButton("Cambiar estado");
+			JButton btnNewButton = new JButton("Pagar Ticket premiado");
+			btnNewButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					if (comboBox.getSelectedItem() == null){
+						JOptionPane.showMessageDialog(
+								panel,
+								"No hay ningún ticket seleccionado.");
+					}
+					else{
+						for (int i=0; i<table.getRowCount(); i++){
+							if (((DefaultTableModel) table.getModel()).getValueAt(i, 0).toString().equals(comboBox.getSelectedItem().toString())){
+								Apuesta apuesta = data.getApuesta(i);
+								if (apuesta.getEstado().equals("::GANADOR::")){
+									apuesta.setEstado("::PAGADO::");
+									data.setApuesta(i, apuesta);
+								}
+								else{
+									JOptionPane.showMessageDialog(
+											panel,
+											"El ticket debe ser ::GANADOR:: para poder ser pagado.");
+								}
+								((DefaultTableModel) table.getModel()).setValueAt(apuesta.getEstado(), i, 6);
+							}
+						}
+					}
+				}
+			});
 			btnNewButton.setIcon(new ImageIcon(Premiacion.class.getResource("/Premiacion/refresh-page-option.png")));
 			GroupLayout gl_panel = new GroupLayout(panel);
 			gl_panel.setHorizontalGroup(
@@ -113,6 +152,7 @@ public class Premiacion extends JDialog {
 				JButton okButton = new JButton("Aceptar");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
+						Main.data = getData();
 						dispose();
 					}
 				});
@@ -123,5 +163,26 @@ public class Premiacion extends JDialog {
 			}
 		}
 	}
-
+	public Data getData() {
+		return data;
+	}
+	public void setData(Data data) {
+		this.data = data;
+	}
+	public void refresh(){
+		DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+		defaultTableModel.setRowCount(0);
+		for (models.Apuesta apuesta: getData().getApuestas()){
+			defaultTableModel.addRow(new Object[1]);
+			defaultTableModel.setValueAt(apuesta.getId(), defaultTableModel.getRowCount()-1, 0);
+			defaultTableModel.setValueAt(apuesta.getPersona().getCedula(), defaultTableModel.getRowCount()-1, 1);
+			defaultTableModel.setValueAt(apuesta.getPersona().getNombres(), defaultTableModel.getRowCount()-1, 2);
+			defaultTableModel.setValueAt(apuesta.getPersona().getApellidos(), defaultTableModel.getRowCount()-1, 3);
+			defaultTableModel.setValueAt(apuesta.getMonto(), defaultTableModel.getRowCount()-1, 4);
+			defaultTableModel.setValueAt((apuesta.getMonto()*getData().getLoteria().getGanancia()), defaultTableModel.getRowCount()-1, 5);
+			defaultTableModel.setValueAt((apuesta.getEstado()), defaultTableModel.getRowCount()-1, 6);
+			comboBox.addItem(apuesta.getId());
+		}
+		table.setModel(defaultTableModel);
+	}
 }
